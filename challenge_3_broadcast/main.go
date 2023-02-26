@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"sync"
+	"time"
 
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
@@ -38,12 +40,20 @@ func main() {
 		}
 
 		for _, peer := range state.Peers {
-			if err := n.Send(peer, map[string]any{
-				"type":    "broadcast",
-				"message": body.Message,
-			}); err != nil {
-				log.Printf("failed broadcast message to peer: nodeID %s ", peer)
-			}
+			go func(dst string) {
+				for {
+					ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+					defer cancel()
+					_, err := n.SyncRPC(ctx, dst, map[string]any{
+						"type":    "broadcast",
+						"message": body.Message,
+					})
+					if err == nil {
+						break
+					}
+					log.Printf("failed broadcast message to peer %s, err: %e", dst, err)
+				}
+			}(peer)
 		}
 
 		state.StoreMu.Lock()
