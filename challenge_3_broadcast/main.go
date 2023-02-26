@@ -8,49 +8,98 @@ import (
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
 
-var store = map[int]struct{}{}
-var storeMu sync.RWMutex
+type State struct {
+	Store   map[int]struct{}
+	StoreMu sync.RWMutex
+	Peers   []string
+}
+
+func NewState() *State {
+	return &State{
+		Store: make(map[int]struct{}),
+	}
+}
 
 func main() {
 	n := maelstrom.NewNode()
+	state := NewState()
 
 	n.Handle("broadcast", func(msg maelstrom.Message) error {
-		var body map[string]any
+		var body MessageBroadcast
 		if err := json.Unmarshal(msg.Body, &body); err != nil {
 			return err
 		}
-		storeMu.Lock()
-		defer storeMu.Unlock()
-		store[int(body["message"].(float64))] = struct{}{}
-		body["type"] = "broadcast_ok"
-		delete(body, "message")
 
-		return n.Reply(msg, body)
+		state.StoreMu.RLock()
+		_, ok := state.Store[body.Message]
+		state.StoreMu.RUnlock()
+		if ok {
+			return nil
+		}
+
+		for _, peer := range state.Peers {
+			if err := n.Send(peer, map[string]any{
+				"type":    "broadcast",
+				"message": body.Message,
+			}); err != nil {
+				log.Printf("failed broadcast message to peer: nodeID %s ", peer)
+			}
+		}
+
+		state.StoreMu.Lock()
+		defer state.StoreMu.Unlock()
+		state.Store[body.Message] = struct{}{}
+
+		if body.MsgID != 0 {
+			return n.Reply(msg, map[string]any{
+				"type": "broadcast_ok",
+			})
+		}
+		return nil
 	})
 
 	n.Handle("read", func(msg maelstrom.Message) error {
-		body := make(map[string]any)
-
-		storeMu.RLock()
-		defer storeMu.RUnlock()
+		state.StoreMu.RLock()
+		defer state.StoreMu.RUnlock()
 		var messages []int
-		for k := range store {
+		for k := range state.Store {
 			messages = append(messages, k)
 		}
-		body["type"] = "read_ok"
-		body["messages"] = messages
 
-		return n.Reply(msg, body)
+		return n.Reply(msg, map[string]any{
+			"type":     "read_ok",
+			"messages": messages,
+		})
 	})
 
 	n.Handle("topology", func(msg maelstrom.Message) error {
-		body := make(map[string]any)
-		body["type"] = "topology_ok"
-		return n.Reply(msg, body)
+		var body MessageTopology
+		if err := json.Unmarshal(msg.Body, &body); err != nil {
+			return err
+		}
+		state.Peers = body.Topology[n.ID()]
+		return n.Reply(msg, map[string]any{
+			"type": "topology_ok",
+		})
 	})
 
 	if err := n.Run(); err != nil {
 		log.Fatal(err)
 	}
 
+}
+
+type BaseMessage struct {
+	Type  string `json:"type"`
+	MsgID int    `json:"msg_id"`
+}
+
+type MessageTopology struct {
+	BaseMessage
+	Topology map[string][]string `json:"topology"`
+}
+
+type MessageBroadcast struct {
+	BaseMessage
+	Message int `json:"message"`
 }
