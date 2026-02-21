@@ -20,5 +20,9 @@ run_broadcast_b:
 	go build -o ./bin/broadcast_b ./challenge_3b_broadcast
 	./maelstrom/maelstrom test -w broadcast --bin ./bin/broadcast_b --time-limit 20 --rate 10 --node-count 5
 
+run_broadcast_c:
+	go build -o ./bin/broadcast_c ./challenge_3c_broadcast
+	./maelstrom/maelstrom test -w broadcast --bin ./bin/broadcast_c --time-limit 20 --rate 10 --node-count 5 --nemesis partition
+
 debug:
 	./maelstrom/maelstrom serve
