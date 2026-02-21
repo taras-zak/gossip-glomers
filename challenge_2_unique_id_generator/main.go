@@ -11,8 +11,7 @@ func main() {
 	n := maelstrom.NewNode()
 
 	n.Handle("generate", func(msg maelstrom.Message) error {
-		var body map[string]any
-
+		body := make(map[string]any)
 		// Update the message type to return back.
 		body["type"] = "generate_ok"
 		body["id"] = uuid.New().String()

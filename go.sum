@@ -1,4 +1,10 @@
+github.com/emirpasic/gods v1.18.1 h1:FXtiHYKDGKCW2KzwZKx0iC0PQmdlorYgdFG9jPXJ1Bc=
+github.com/emirpasic/gods v1.18.1/go.mod h1:8tpGGwCnJ5H4r6BWwaV6OrWmMoPhUl5jm/FMNAnJvWQ=
 github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
 github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/jepsen-io/maelstrom v0.2.4 h1:6sgszBGHez+gH1pvRnFCBvNSHk7bulbXUyUnqlvjyjU=
+github.com/jepsen-io/maelstrom v0.2.4/go.mod h1:0wdJx4tJ+pnB1wHX4ZzRzkrppLt9qVQvNRax7fHKs44=
 github.com/jepsen-io/maelstrom/demo/go v0.0.0-20230113211434-22f433519054 h1:NF9yM6z/+jj+LpIsv9dBzF3o4IOgVjqg6hkpuxy55mc=
 github.com/jepsen-io/maelstrom/demo/go v0.0.0-20230113211434-22f433519054/go.mod h1:i6aVIs5AIOOaQF1lAisBm7DDeWM1Iopf+26UxjagsCU=
+github.com/jepsen-io/maelstrom/demo/go v0.0.0-20251128144731-cb7f07239012 h1:j2FpC/930Px9SWIn8lgzxEiEZOvaQ9EUs37+e1QCNLA=
+github.com/jepsen-io/maelstrom/demo/go v0.0.0-20251128144731-cb7f07239012/go.mod h1:i6aVIs5AIOOaQF1lAisBm7DDeWM1Iopf+26UxjagsCU=
