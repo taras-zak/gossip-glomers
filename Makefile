@@ -24,5 +24,9 @@ run_broadcast_c:
 	go build -o ./bin/broadcast_c ./challenge_3c_broadcast
 	./maelstrom/maelstrom test -w broadcast --bin ./bin/broadcast_c --time-limit 20 --rate 10 --node-count 5 --nemesis partition
 
+run_broadcast_d:
+	go build -o ./bin/broadcast_d ./challenge_3d_broadcast
+	./maelstrom/maelstrom test -w broadcast --bin ./bin/broadcast_d --node-count 25 --time-limit 20 --rate 100 --latency 100
+
 debug:
 	./maelstrom/maelstrom serve
