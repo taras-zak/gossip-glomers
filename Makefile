@@ -28,5 +28,10 @@ run_broadcast_d:
 	go build -o ./bin/broadcast_d ./challenge_3d_broadcast
 	./maelstrom/maelstrom test -w broadcast --bin ./bin/broadcast_d --node-count 25 --time-limit 20 --rate 100 --latency 100
 
+# challenge_3d_broadcast satisfy requirements for challenge_3e_broadcast
+run_broadcast_e:
+	go build -o ./bin/broadcast_d ./challenge_3d_broadcast
+	./maelstrom/maelstrom test -w broadcast --bin ./bin/broadcast_d --node-count 25 --time-limit 20 --rate 100 --latency 100
+
 debug:
 	./maelstrom/maelstrom serve
