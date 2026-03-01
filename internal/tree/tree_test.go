@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestTree_Neighbours(t *testing.T) {
+func TestTree_Children(t *testing.T) {
 	type fields struct {
 		arr       []string
 		branching int
@@ -116,14 +116,14 @@ func TestTree_Neighbours(t *testing.T) {
 				branching: 2,
 			},
 			args: args{node: "n0"},
-			want: []string{},
+			want: []string{"n1", "n2"},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tree := NewTree(tt.fields.arr, tt.fields.branching)
-			if got := tree.Neighbours(tt.args.node); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Neighbours() = %v, want %v", got, tt.want)
+			if got := tree.Children(tt.args.node); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Children() = %v, want %v", got, tt.want)
 			}
 		})
 	}

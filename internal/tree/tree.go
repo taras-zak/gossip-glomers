@@ -18,7 +18,7 @@ func NewTree(nodes []string, branching int) *Tree {
 	}
 }
 
-func (t *Tree) Neighbours(node string) []string {
+func (t *Tree) Children(node string) []string {
 	nodeIndex := slices.Index(t.arr, node)
 	if nodeIndex == -1 {
 		panic("node not known")
@@ -33,5 +33,5 @@ func (t *Tree) Parent(node string) string {
 	if nodeIndex == -1 {
 		panic("node not known")
 	}
-	return t.arr[(nodeIndex-1)/2]
+	return t.arr[(nodeIndex-1)/t.branching]
 }

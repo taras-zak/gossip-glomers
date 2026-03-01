@@ -52,7 +52,7 @@ func main() {
 		state.StoreMu.Lock()
 		defer state.StoreMu.Unlock()
 		var messages []int
-		for k := range state.Store {
+		for _, k := range state.Store {
 			messages = append(messages, k)
 		}
 
