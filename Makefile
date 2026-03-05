@@ -37,5 +37,9 @@ run_g_counter:
 	go build -o ./bin/g_counter ./challenge_4_g_counter
 	./maelstrom/maelstrom test -w g-counter --bin ./bin/g_counter --node-count 3 --rate 100 --time-limit 20 --nemesis partition
 
+run_g_counter_gossip:
+	go build -o ./bin/g_counter_gossip ./challenge_4_g_counter_gossip
+	./maelstrom/maelstrom test -w g-counter --bin ./bin/g_counter_gossip --node-count 3 --rate 100 --time-limit 20 --nemesis partition
+
 debug:
 	./maelstrom/maelstrom serve
