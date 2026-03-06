@@ -84,7 +84,7 @@ func (s *State) handleBroadcastBatch(msg maelstrom.Message) error {
 
 func (s *State) handleRead(msg maelstrom.Message) error {
 	s.mu.Lock()
-	messages := s.store.Values()
+	messages := s.store.Elements()
 	s.mu.Unlock()
 
 	return s.n.Reply(msg, map[string]any{

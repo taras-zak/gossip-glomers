@@ -68,11 +68,11 @@ func TestGSet_Values(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.c.Values()
+			got := tt.c.Elements()
 			slices.Sort(got)
 			slices.Sort(tt.want)
 			if !slices.Equal(got, tt.want) {
-				t.Errorf("Values() = %v, want %v", got, tt.want)
+				t.Errorf("Elements() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -119,11 +119,11 @@ func TestGSet_Merge(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.c.Merge(tt.other)
-			got := tt.c.Values()
+			got := tt.c.Elements()
 			slices.Sort(got)
 			slices.Sort(tt.wantKeys)
 			if !slices.Equal(got, tt.wantKeys) {
-				t.Errorf("Values() after Merge = %v, want %v", got, tt.wantKeys)
+				t.Errorf("Elements() after Merge = %v, want %v", got, tt.wantKeys)
 			}
 		})
 	}
@@ -140,8 +140,8 @@ func TestGSet_Merge_Commutative(t *testing.T) {
 	ba := GSet{2: {}, 3: {}}
 	ba.Merge(a)
 
-	gotAB := ab.Values()
-	gotBA := ba.Values()
+	gotAB := ab.Elements()
+	gotBA := ba.Elements()
 	slices.Sort(gotAB)
 	slices.Sort(gotBA)
 

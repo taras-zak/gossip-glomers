@@ -6,7 +6,7 @@ func (c GSet) Add(element int) {
 	c[element] = struct{}{}
 }
 
-func (c GSet) Values() []int {
+func (c GSet) Elements() []int {
 	elements := make([]int, 0, len(c))
 	for k := range c {
 		elements = append(elements, k)
