@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"log/slog"
 	"maps"
 	"sync"
 	"time"
+
+	"gossip-glomers/internal/crdt"
 
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
@@ -25,16 +26,15 @@ type MessageAdd struct {
 
 type MessageBroadcastCounters struct {
 	BaseMessage
-	Counters map[string]int `json:"counters"`
+	Counters crdt.GCounter `json:"counters"`
 }
 
 type State struct {
-	n             *maelstrom.Node
-	countersCache map[string]int
-	peers         []string
-	counterKey    string
-	mu            sync.Mutex
-	wg            sync.WaitGroup
+	n       *maelstrom.Node
+	counter crdt.GCounter
+	peers   []string
+	mu      sync.Mutex
+	wg      sync.WaitGroup
 
 	requestTimeout        time.Duration
 	broadcastCountersTick time.Duration
@@ -45,7 +45,7 @@ type State struct {
 func NewState(n *maelstrom.Node) *State {
 	return &State{
 		n:                     n,
-		countersCache:         make(map[string]int),
+		counter:               make(crdt.GCounter),
 		requestTimeout:        600 * time.Millisecond,
 		broadcastCountersTick: time.Second,
 		maxRetryAttempts:      5,
@@ -61,7 +61,7 @@ func (s *State) handleAdd(msg maelstrom.Message) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.countersCache[s.counterKey] += body.Delta
+	s.counter.Increment(s.n.ID(), body.Delta)
 
 	return s.n.Reply(msg, map[string]any{"type": "add_ok"})
 }
@@ -74,19 +74,14 @@ func (s *State) handleGossip(msg maelstrom.Message) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	for counter, val := range body.Counters {
-		s.countersCache[counter] = max(s.countersCache[counter], val)
-	}
+	s.counter.Merge(body.Counters)
 
 	return s.n.Reply(msg, map[string]any{"type": "broadcast_counters_ok"})
 }
 
 func (s *State) handleRead(msg maelstrom.Message) error {
 	s.mu.Lock()
-	sum := 0
-	for _, val := range s.countersCache {
-		sum += val
-	}
+	sum := s.counter.Value()
 	s.mu.Unlock()
 
 	return s.n.Reply(msg, map[string]any{
@@ -99,12 +94,11 @@ func (s *State) handleInit(_ maelstrom.Message) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.counterKey = fmt.Sprintf("counter_%s", s.n.ID())
 	for _, n := range s.n.NodeIDs() {
 		if n == s.n.ID() {
 			continue
 		}
-		s.countersCache[fmt.Sprintf("counter_%s", n)] = 0
+		s.counter.Increment(n, 0)
 		s.peers = append(s.peers, n)
 	}
 	s.wg.Go(s.runGossip)
@@ -116,9 +110,10 @@ func (s *State) runGossip() {
 
 	for range ticker.C {
 		s.mu.Lock()
-		countersCopy := make(map[string]int)
-		maps.Copy(countersCopy, s.countersCache)
+		countersCopy := make(crdt.GCounter)
+		maps.Copy(countersCopy, s.counter)
 		s.mu.Unlock()
+
 		msg := MessageBroadcastCounters{
 			BaseMessage: BaseMessage{Type: "broadcast_counters"},
 			Counters:    countersCopy,
