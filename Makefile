@@ -53,6 +53,10 @@ run_pn_counter_gossip:
 	go build -o ./bin/pn_counter_gossip ./challenge_4_pn_counter_gossip
 	./maelstrom/maelstrom test -w pn-counter --bin ./bin/pn_counter_gossip --node-count 3 --rate 100 --time-limit 20 --nemesis partition
 
+run_kafka_a:
+	go build -o ./bin/kafka_a ./challenge_5a_kafka
+	./maelstrom/maelstrom test -w kafka --bin ./bin/kafka_a --node-count 1 --concurrency 2n --time-limit 20 --rate 1000
+
 
 debug:
 	./maelstrom/maelstrom serve
