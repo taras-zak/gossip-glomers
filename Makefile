@@ -57,6 +57,10 @@ run_kafka_a:
 	go build -o ./bin/kafka_a ./challenge_5a_kafka
 	./maelstrom/maelstrom test -w kafka --bin ./bin/kafka_a --node-count 1 --concurrency 2n --time-limit 20 --rate 1000
 
+run_kafka_b:
+	go build -o ./bin/kafka_b ./challenge_5b_kafka
+	./maelstrom/maelstrom test -w kafka --bin ./bin/kafka_b --node-count 2 --concurrency 2n --time-limit 20 --rate 1000
+
 
 debug:
 	./maelstrom/maelstrom serve
